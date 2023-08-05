@@ -1,0 +1,188 @@
+--- ALUNO: LUCAS VITOR DE SOUZA
+---		   MATHEUS FERNANDES DA SILVA
+---		   DEBORA DA SILVA BORGES
+
+
+create table produtos
+(
+id serial not null,
+descricao character varying(60),
+valor numeric(14,2),
+unidade character varying(20),
+constraint "PK_id_produto" primary key (id)
+)
+
+create table municipios
+(
+id serial not null,
+nome character varying(60),
+codg_ibge character varying(12)
+)
+
+create table aluno
+(
+id serial not null,
+nome character varying(60),
+nota_n1 numeric(5,2),
+nota_n2 numeric(5,2),
+nota_media_final numeric(5,2),
+constraint "PK_aluno" primary key (id)
+
+)
+
+
+----- Lista produtos
+
+create or replace function lista_produtos()
+	returnS text AS $$
+	declare 
+		listaProdutos RECORD;
+		retorno text default '';
+	begin
+			for listaProdutos in 
+				select id, descricao, valor, unidade
+				from produtos
+				loop
+					retorno = retorno || ' ' || listaProdutos.id || '- ' ||listaProdutos.descricao || '- ' || listaProdutos.valor || '- ' || listaProdutos.unidade;
+					
+				end loop;
+				return retorno;
+				
+	end;
+	$$
+		language plpgsql volatile
+		cost 100;
+	alter function lista_produtos()
+	owner to postgres;
+
+select lista_produtos()
+
+-----Listagem municipios
+
+create or replace function lista_municipios()
+	returnS text AS $$
+	declare 
+		listaMunicipios RECORD;
+		retorno text default '';
+	begin
+			for listaMunicipios in 
+				select id, nome, codg_ibge
+				from municipios
+				loop
+					retorno = retorno || ' ' || listaMunicipios.id || '- ' ||listaMunicipios.nome || '- ' || listaMunicipios.codg_ibge;
+					
+				end loop;
+				return retorno;
+				
+	end;
+	$$
+		language plpgsql volatile
+		cost 100;
+	alter function lista_municipios()
+	owner to postgres;
+
+select lista_municipios()
+	
+
+
+---- Calcula media
+
+
+create or replace function calcula_media_final()
+	returnS text AS $$
+	declare 
+		listaAlunos RECORD;
+		retorno text default '';
+		media numeric default 0;
+		situcao text default '';
+	begin
+			for listaAlunos in 
+				select id,
+						nome,
+						nota_n1,
+						nota_n2,
+						nota_media_final
+				from aluno
+				
+				loop
+					media = (nota_n1 + nota_n2)/2;
+					
+					update aluno 					
+					set nota_media_final = media
+					where id = listaAlunos.id;
+					
+					if (media < 6 ) then 
+						situcao = 'REPROVADO';
+					else
+						situcao = 'APROVADO';
+					end if;
+				
+					retorno = retorno || ' ' || listaAlunos.id || '- ' ||listaAlunos.nome || '- ' || listaAlunos.nota_n1 || '- ' || listaAlunos.nota_n2 || '- ' || listaAlunos.nota_media_final  || '- ' || situacao;
+					
+				end loop;
+				return retorno;
+				
+	end;
+	$$
+		language plpgsql volatile
+		cost 100;
+	alter function calcula_media_final()
+	owner to postgres;
+
+select calcula_media_final()
+
+---- PRODUTOS COM VALOR >100
+
+create or replace function produtos_maior()
+	returnS text AS $$
+	declare 
+		produtosMaior RECORD;
+		retorno text default '';
+	begin
+			for produtosMaior in 
+				select id, descricao, valor, unidade
+				from produtos
+				loop
+					
+				if(produtosMaior.valor > 100) then
+					retorno = retorno || ' ' || produtosMaior.id || '- ' ||produtosMaior.descricao || '- ' || produtosMaior.valor || '- ' || produtosMaior.unidade;
+				end if;
+				end loop;
+				return retorno;
+				
+	end;
+	$$
+		language plpgsql volatile
+		cost 100;
+	alter function produtos_maior()
+	owner to postgres;
+
+select produtos_maior()
+
+--- aluno com média >7
+
+create or replace function aluno_media_maior()
+	returnS text AS $$
+	declare 
+		alunoMaior RECORD;
+		retorno text default '';
+	begin
+			for alunoMaior in 
+				select id, nome, nota_n1, nota_n2, nota_media_final
+				from aluno
+				loop
+					
+				if(alunoMaior.nota_media_final >= 7) then
+					retorno = retorno || ' ' || alunoMaior.id || '- ' ||alunoMaior.nome || '- ' || alunoMaior.nota_n1 || '- ' || alunoMaior.nota_n2 || '- ' || alunoMaior.nota_media_final;
+				end if;
+				end loop;
+				return retorno;
+				
+	end;
+	$$
+		language plpgsql volatile
+		cost 100;
+	alter function aluno_media_maior()
+	owner to postgres;
+
+select aluno_media_maior()
