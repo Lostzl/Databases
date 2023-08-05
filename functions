@@ -1,0 +1,101 @@
+CREATE FUNCTION sf_saudacao1() RETURNS
+VARCHAR AS $$
+DECLARE
+mensagem VARCHAR := 'Alo Mundo . . .';
+BEGIN
+RETURN mensagem;
+END;
+$$ LANGUAGE plpgsql;
+SELECT sf_saudacao1();
+
+
+
+
+create[or replace] FUNCTION
+sf_saudacao2(nome VARCHAR)
+RETURNS VARCHAR AS $$
+DECLARE
+mensagem VARCHAR := 'Ola ';
+BEGIN
+RETURN mensagem || ' ' || nome;
+END;
+$$ LANGUAGE plpgsql;
+SELECT sf_saudacao2('Delta');
+
+
+
+
+create or replace FUNCTION sf_saudacao3(VARCHAR, VARCHAR) RETURNS
+VARCHAR AS $$
+DECLARE
+mensagem VARCHAR := 'Ola ';
+BEGIN
+RETURN mensagem || ' ' || $1 || ' ' || $2;
+END;
+$$ LANGUAGE plpgsql;
+SELECT sf_saudacao3('Delta', 'Alpha');
+
+
+
+
+create or REPLACE FUNCTION sf_soma(A INTEGER, B INTEGER)
+RETURNS INTEGER AS $$
+	DECLARE
+	S INTEGER;
+	BEGIN
+	S := A + B;
+	RETURN S;
+	END;
+	$$ LANGUAGE plpgsql;
+	SELECT sf_soma(1,3);
+
+
+
+CREATE FUNCTION sf_loop() RETURNS INTEGER AS $$
+DECLARE
+cont INTEGER;
+BEGIN
+cont := 1;
+LOOP
+IF (cont = 30) THEN
+EXIT;
+END IF;
+cont := cont + 1;
+END LOOP;
+RETURN cont;
+END;
+$$ LANGUAGE plpgsql;
+SELECT sf_loop();
+
+
+
+
+CREATE FUNCTION sf_while() RETURNS INTEGER AS $$
+DECLARE
+cont INTEGER;
+BEGIN
+cont := 1;
+WHILE (cont < 30) LOOP
+cont := cont + 1;
+END LOOP;
+RETURN cont;
+END;
+$$ LANGUAGE plpgsql;
+SELECT sf_while();
+
+
+
+
+
+CREATE FUNCTION sf_for() RETURNS INTEGER AS $$
+DECLARE
+valor INTEGER;
+BEGIN
+valor := 0;
+FOR cont IN 1..30 LOOP
+valor := valor + 1;
+END LOOP;
+RETURN valor;
+END;
+$$ LANGUAGE plpgsql;
+SELECT sf_for();
